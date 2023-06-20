@@ -19,7 +19,12 @@ def generate_fake_data(num_rows):
     duplicates = random.sample(data, int(num_rows * 0.1))  # Assuming 10% duplicates
     for duplicate in duplicates:
         random = random.random()
-        if (random < 0.5)
+        if (random < 0.5):
+            """
+            TO DO
+            """
+            
+            pass
 
 
     data += duplicates
