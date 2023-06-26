@@ -52,10 +52,12 @@ def generate_duplicates(data: list[str]) -> list[str]:
 def main():
     # Load csv
     data = []
+    header = []
 
     with open('data/so_dataset.csv', 'r') as f:
         data = f.readlines()
         data = [line.strip().split(',') for line in data]
+        header = data[0]
         data = data[1:]     # Remove header
 
     # Generate duplicates
@@ -66,6 +68,7 @@ def main():
 
     # Export to csv
     with open('data/so_dataset_duplicates.csv', 'w') as f:
+        f.write(','.join(header) + '\n')
         for line in data:
             f.write(','.join(line) + '\n')
 
