@@ -6,8 +6,6 @@ This repository follows "A hierarchical Naïve Bayes model for approximate ident
 
 `model.ipynb` should be run after the `unlabeledident.csv` produced by `process.ipynb` is labeled. According to Wang, Atabaksh, and Chen, the Hierarchical Naive Bayes model is at its best in a supervised learning state where 80% of the records are labeled and 20% are not. We leave it up to the discretion of the user to choose how much of the data to label, but recommend that the user refer to the research article to make an informed decision. Following labeling, `model.ipynb` should train the model. 
 
----
-
 
 ## process.ipynb
 This notebook preprocesses the data and produces a spreadsheet containing pairs of duplicates, containing all the original fields in the records, as well as discretized similarity measures to be used my the model later. These similarity measures should not be altered/changed. 
