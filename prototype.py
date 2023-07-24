@@ -7,12 +7,9 @@ and then uses the model to predict the probability of a match
 # Importing libraries
 import streamlit as st
 import pandas as pd
-import numpy as np
 import Levenshtein as lev
-from pgmpy.models import BayesianNetwork
-from pgmpy.estimators import ExpectationMaximization
 from pgmpy.inference import BeliefPropagation
-from pgmpy.readwrite import BIFReader
+from pgmpy.readwrite import XMLBIFReader
 
 # Creating the form
 st.title('Prototype')
@@ -22,7 +19,7 @@ st.subheader('Identity One')
 first_name = st.text_input('First name', key='first_name')
 first_middle_name = st.text_input('Middle name', key='first_middle_name')
 first_surname = st.text_input('Last name', key='first_surname')
-first_dob = st.date_input('Date of birth', key='first_dob')
+first_dob = str(st.date_input('Date of birth', key='first_dob'))
 first_address = st.text_input('Address', key='first_address')
 first_id = st.text_input('ID number', key='first_id')
 
@@ -32,7 +29,7 @@ st.subheader('Identity Two')
 second_name = st.text_input('First name', key='second_name')
 second_middle_name = st.text_input('Middle name', key='second_middle_name')
 second_surname = st.text_input('Surname', key='second_surname')
-second_dob = st.date_input('Date of birth', key='second_dob')
+second_dob = str(st.date_input('Date of birth', key='second_dob'))
 second_address = st.text_input('Address', key='second_address')
 second_id = st.text_input('ID number', key='second_id')
 
@@ -47,6 +44,10 @@ if submit:
     df = pd.DataFrame(columns=['first name', 'middle name', 'surname', 'dob', 'address', 'id'])
     df.loc[0] = [first_name, first_middle_name, first_surname, first_dob, first_address, first_id]
     df.loc[1] = [second_name, second_middle_name, second_surname, second_dob, second_address, second_id]
+
+    # Convert the date of birth to a string and nan to empty string
+    df['dob'] = df['dob'].astype(str)
+    df = df.fillna('')
 
     def levenshtein_distance(
             s1: str,
@@ -66,22 +67,23 @@ if submit:
                                         'ID Similarity'
                                         'Identity Match'])
 
-    reader = BIFReader('model.bif')
+    reader = XMLBIFReader('model.xml')
     model = reader.get_model()
 
     # Create a dataframe with the similarity scores using normalized Levenshtein distance
+    i = 0
     for col in df.columns:
-        similarity_df.iloc[0,df.get_loc(col)] = df[col].astype(str).apply(lambda x: pd.Series(levenshtein_distance(x.iloc[1], x.iloc[0])))
+        similarity_df.at[0,similarity_df.columns[i]] = levenshtein_distance(df[col].iloc[1], df[col].iloc[0])
+        i += 1
 
     # Discretize the similarity scores
-    similarity_df = similarity_df.apply(lambda x: pd.qcut(x, 4, labels=False, duplicates='drop'))
-
+    
     # TO DO
 
     belief_propagation = BeliefPropagation(model)
     belief_propagation.calibrate()
 
-    match = belief_propagation.map_query(variables=['Identity Match'], evidence={similarity_df.to_dict()})
+    match = belief_propagation.map_query(variables=['Identity Match'], evidence=similarity_df.to_dict())
 
     # Display the results
     st.subheader('Results')
