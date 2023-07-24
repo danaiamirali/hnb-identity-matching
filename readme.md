@@ -21,3 +21,5 @@ Run Model (`model.ipynb`):
 ```
 replace data/labeledident.csv with your own file csv file
 ```
+
+more info on wiki page...
