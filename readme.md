@@ -13,4 +13,11 @@ python3 -m venv env
 ```
 source env/bin/activate
 ```
-Set up pgmpy and the following dependencies, and then run the cell step by step
+Set up pgmpy and the following dependencies, and then set up data (`process.ipynb`):
+```
+replace data/directoryident.tsv with your own file tsv file
+```
+Run Model (`model.ipynb`):
+```
+replace data/labeledident.csv with your own file csv file
+```
