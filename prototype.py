@@ -40,61 +40,49 @@ second_id = st.text_input('ID number', key='second_id')
 submit = st.button('Submit')
 
 
-"""
-
-MODEL
-
-"""
-
-
-# Convert the form data into a dataframe
-# Each row is a person and each column is a feature
-df = pd.DataFrame(columns=['first name', 'middle name', 'surname', 'dob', 'address', 'id'])
-df.loc[0] = [first_name, first_middle_name, first_surname, first_dob, first_address, first_id]
-df.loc[1] = [second_name, second_middle_name, second_surname, second_dob, second_address, second_id]
-
-def levenshtein_distance(
-        s1: str,
-        s2: str
-) -> int:
-    distance = lev.distance(s1, s2)
-    try:
-        return 1 - distance / float(max(len(s1), len(s2)))
-    except ZeroDivisionError:
-        return 0
-    
-similarity_df = pd.DataFrame(columns=['First Name Similarity', 
-                                      'Middle Name Similarity', 
-                                      'Last Name Similarity', 
-                                      'Date of Birth Similarity', 
-                                      'Address Similarity', 
-                                      'ID Similarity'
-                                      'Identity Match'])
-
-reader = BIFReader('model.bif')
-model = reader.get_model()
-
-# Create a dataframe with the similarity scores using normalized Levenshtein distance
-for col in df.columns:
-    similarity_df.iloc[0,df.get_loc(col)] = df[col].astype(str).apply(lambda x: pd.Series(levenshtein_distance(x.iloc[1], x.iloc[0])))
-
-# Discretize the similarity scores
-
-# TO DO
-
-belief_propagation = BeliefPropagation(model)
-belief_propagation.calibrate()
-
-match = belief_propagation.map_query(variables=['Identity Match'], evidence={similarity_df.to_dict()})
-
-
-"""
-
-RESPONSE
-
-"""
-
 # Display the results
 if submit:
+    # Convert the form data into a dataframe
+    # Each row is a person and each column is a feature
+    df = pd.DataFrame(columns=['first name', 'middle name', 'surname', 'dob', 'address', 'id'])
+    df.loc[0] = [first_name, first_middle_name, first_surname, first_dob, first_address, first_id]
+    df.loc[1] = [second_name, second_middle_name, second_surname, second_dob, second_address, second_id]
+
+    def levenshtein_distance(
+            s1: str,
+            s2: str
+    ) -> int:
+        distance = lev.distance(s1, s2)
+        try:
+            return 1 - distance / float(max(len(s1), len(s2)))
+        except ZeroDivisionError:
+            return 0
+        
+    similarity_df = pd.DataFrame(columns=['First Name Similarity', 
+                                        'Middle Name Similarity', 
+                                        'Last Name Similarity', 
+                                        'Date of Birth Similarity', 
+                                        'Address Similarity', 
+                                        'ID Similarity'
+                                        'Identity Match'])
+
+    reader = BIFReader('model.bif')
+    model = reader.get_model()
+
+    # Create a dataframe with the similarity scores using normalized Levenshtein distance
+    for col in df.columns:
+        similarity_df.iloc[0,df.get_loc(col)] = df[col].astype(str).apply(lambda x: pd.Series(levenshtein_distance(x.iloc[1], x.iloc[0])))
+
+    # Discretize the similarity scores
+    similarity_df = similarity_df.apply(lambda x: pd.qcut(x, 4, labels=False, duplicates='drop'))
+
+    # TO DO
+
+    belief_propagation = BeliefPropagation(model)
+    belief_propagation.calibrate()
+
+    match = belief_propagation.map_query(variables=['Identity Match'], evidence={similarity_df.to_dict()})
+
+    # Display the results
     st.subheader('Results')
     st.write('The probability of a match is: ', str(match['Identity Match']))
