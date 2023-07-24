@@ -64,8 +64,7 @@ if submit:
                                         'Last Name Similarity', 
                                         'Date of Birth Similarity', 
                                         'Address Similarity', 
-                                        'ID Similarity'
-                                        'Identity Match'])
+                                        'ID Similarity'])
 
     reader = XMLBIFReader('model.xml')
     model = reader.get_model()
@@ -75,7 +74,6 @@ if submit:
     for col in df.columns:
         similarity_df.at[0,similarity_df.columns[i]] = levenshtein_distance(df[col].iloc[1], df[col].iloc[0])
         i += 1
-
     # Display each similarity score in a table
     st.subheader('Similarity Scores')
     st.write(similarity_df)
@@ -87,7 +85,26 @@ if submit:
     belief_propagation = BeliefPropagation(model)
     belief_propagation.calibrate()
 
-    match = belief_propagation.map_query(variables=['Identity Match'], evidence=similarity_df.to_dict())
+    def convert_to_state(value):
+        # Convert the float to string, replace the '.' with '_', and append '0'
+        state_str = str(value).replace('.', '_')
+        return state_str
+
+
+    evidence = similarity_df.to_dict()
+    # Get rid of index in dict
+    evidence = {k: convert_to_state(float(round(v[0]))) for k, v in evidence.items()}
+
+
+    # for node in model.nodes():
+    # st.write(f"Node: {node}, States: {model.get_cpds(node).state_names[node]}")
+
+    # for k, v in evidence.items():
+    #     if str(v) not in model.get_cpds(k).state_names[k]:
+    #         st.write(f"Evidence value {v} for variable {k} does not exist in the model's states.")
+
+
+    match = belief_propagation.map_query(variables=['Identity Match'], evidence=evidence)
 
     # Display the results
     st.subheader('Results')
