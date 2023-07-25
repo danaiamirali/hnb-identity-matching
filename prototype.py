@@ -10,6 +10,7 @@ import pandas as pd
 import Levenshtein as lev
 from pgmpy.inference import BeliefPropagation
 from pgmpy.readwrite import XMLBIFReader
+import pickle
 
 # Creating the form
 st.title('Prototype')
@@ -79,8 +80,6 @@ if submit:
     st.write(similarity_df)
 
     # Discretize the similarity scores
-    
-    # TO DO
 
     belief_propagation = BeliefPropagation(model)
     belief_propagation.calibrate()
@@ -97,11 +96,14 @@ if submit:
 
 
     # for node in model.nodes():
-    # st.write(f"Node: {node}, States: {model.get_cpds(node).state_names[node]}")
+    #     st.write(f"Node: {node}, States: {model.get_cpds(node).state_names[node]}")
 
-    # for k, v in evidence.items():
-    #     if str(v) not in model.get_cpds(k).state_names[k]:
-    #         st.write(f"Evidence value {v} for variable {k} does not exist in the model's states.")
+    for k, v in evidence.items():
+        if str(v) not in model.get_cpds(k).state_names[k]:
+            print(f"Evidence value {v} for variable {k} does not exist in the model's states.")
+            print(f"Replacing with the closest value in the model's states.")
+            evidence[k] = model.get_cpds(k).state_names[k][0]
+
 
 
     match = belief_propagation.map_query(variables=['Identity Match'], evidence=evidence)
