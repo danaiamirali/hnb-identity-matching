@@ -10,6 +10,7 @@ import pandas as pd
 import Levenshtein as lev
 from pgmpy.inference import BeliefPropagation
 from pgmpy.readwrite import XMLBIFReader
+import pickle
 
 # Creating the form
 st.title('Prototype')
@@ -79,8 +80,29 @@ if submit:
     st.write(similarity_df)
 
     # Discretize the similarity scores
+    # Read the bin ranges from bin_ranges.pickle
+    with open('bin_ranges.pickle', 'rb') as handle:
+        bin_ranges = pickle.load(handle)   
+        arr = []
+        for col in similarity_df.columns:
+            arr.append(bin_ranges[col])
+        similarity_df.loc[1] = arr
     
-    # TO DO
+    
+
+    # Discretize the similarity scores
+    # Use the bin ranges from bin_ranges
+    # If the similarity score in similarity_df[0] is between the i and i+1th bin range in similarity_df[1]
+    # Then the discretized score is in the ith bin range
+    i = 0
+    for col in similarity_df.columns:
+        for j in range(len(similarity_df[col].iloc[1]) - 1):
+            if similarity_df[col].iloc[0] >= similarity_df[col].iloc[1][j] and similarity_df[col].iloc[0] < similarity_df[col].iloc[1][j+1]:
+                similarity_df[col].iloc[0] = j
+                break
+        i += 1
+
+    st.write(similarity_df)
 
     belief_propagation = BeliefPropagation(model)
     belief_propagation.calibrate()
@@ -90,18 +112,20 @@ if submit:
         state_str = str(value).replace('.', '_')
         return state_str
 
-
     evidence = similarity_df.to_dict()
     # Get rid of index in dict
     evidence = {k: convert_to_state(float(round(v[0]))) for k, v in evidence.items()}
 
 
     # for node in model.nodes():
-    # st.write(f"Node: {node}, States: {model.get_cpds(node).state_names[node]}")
+    #     st.write(f"Node: {node}, States: {model.get_cpds(node).state_names[node]}")
 
-    # for k, v in evidence.items():
-    #     if str(v) not in model.get_cpds(k).state_names[k]:
-    #         st.write(f"Evidence value {v} for variable {k} does not exist in the model's states.")
+    for k, v in evidence.items():
+        if str(v) not in model.get_cpds(k).state_names[k]:
+            print(f"Evidence value {v} for variable {k} does not exist in the model's states.")
+            print(f"Replacing with the closest value in the model's states.")
+            evidence[k] = model.get_cpds(k).state_names[k][0]
+
 
 
     match = belief_propagation.map_query(variables=['Identity Match'], evidence=evidence)
