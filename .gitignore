@@ -1,3 +1,7 @@
+model.bif
+model.xml
+bin_ranges.pickle
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -162,3 +166,4 @@ cython_debug/
 
 #local
 .DS_Store
+bin_ranges.pickle
