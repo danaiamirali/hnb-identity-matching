@@ -1,5 +1,6 @@
 model.bif
 model.xml
+bin_ranges.pickle
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
