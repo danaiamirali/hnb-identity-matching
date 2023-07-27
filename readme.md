@@ -1,6 +1,6 @@
 # Hierarchical Naive Bayes for Identity Matching
 ## Project Description
-This repository follows "A hierarchical Naïve Bayes model for approximate identity matching" by Wang, Atabaksh, and Chen in creating a Hierarchical Naive Bayes model to solve an identity matching task. There are two notebooks, process.ipynb and model.ipynb that preprocess the data prior to labeling, and train the model following labeling.
+This repository follows "A hierarchical Naïve Bayes model for approximate identity matching" by Wang, Atabaksh, and Chen in creating a Hierarchical Naive Bayes model to solve an identity matching task. Given two identity records, this model aims to predict whether the pair is a match or non-match. There are two notebooks, process.ipynb and model.ipynb that preprocess the data prior to labeling, and train the model following labeling. 
 
 ## Getting Started
 
