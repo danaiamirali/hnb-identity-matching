@@ -23,12 +23,16 @@ Set up pgmpy and the following dependencies, and then set up data (`process.ipyn
 ```
 replace data/directoryident.tsv with your own file tsv file
 ```
-Run 'process.ipynb' to produce a new tsv of fully processed data + pickled bins object used for discretizing data in model.ipynb.
+Run 'process.ipynb' to produce a new tsv of fully processed data used for discretizing data in model.ipynb + a pickled bins object for a prototype of the model in `prototype.py`.
 
 Run Model (`model.ipynb`):
 ```
 replace data/labeledident.csv with your own file csv file
-replace bins object with your own pickled file
+```
+
+Run Prototype (`prototype.py`):
+```
+streamlit run prototype.py
 ```
 
 more info on wiki page...
