@@ -102,7 +102,8 @@ if submit:
                 break
         i += 1
 
-    st.write(similarity_df)
+    # Remove row 2
+    similarity_df = similarity_df.iloc[0:1]
 
     belief_propagation = BeliefPropagation(model)
     belief_propagation.calibrate()
