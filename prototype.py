@@ -80,6 +80,29 @@ if submit:
     st.write(similarity_df)
 
     # Discretize the similarity scores
+    # Read the bin ranges from bin_ranges.pickle
+    with open('bin_ranges.pickle', 'rb') as handle:
+        bin_ranges = pickle.load(handle)   
+        arr = []
+        for col in similarity_df.columns:
+            arr.append(bin_ranges[col])
+        similarity_df.loc[1] = arr
+    
+    
+
+    # Discretize the similarity scores
+    # Use the bin ranges from bin_ranges
+    # If the similarity score in similarity_df[0] is between the i and i+1th bin range in similarity_df[1]
+    # Then the discretized score is in the ith bin range
+    i = 0
+    for col in similarity_df.columns:
+        for j in range(len(similarity_df[col].iloc[1]) - 1):
+            if similarity_df[col].iloc[0] >= similarity_df[col].iloc[1][j] and similarity_df[col].iloc[0] < similarity_df[col].iloc[1][j+1]:
+                similarity_df[col].iloc[0] = j
+                break
+        i += 1
+
+    st.write(similarity_df)
 
     belief_propagation = BeliefPropagation(model)
     belief_propagation.calibrate()
@@ -88,7 +111,6 @@ if submit:
         # Convert the float to string, replace the '.' with '_', and append '0'
         state_str = str(value).replace('.', '_')
         return state_str
-
 
     evidence = similarity_df.to_dict()
     # Get rid of index in dict
